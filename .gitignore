@@ -1,0 +1,19 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+# Java / Maven
+project/backend/target/
+*.class
+# Node
+node_modules/
+project/frontend/dist/
+# OS
+.DS_Store
+Thumbs.db
+# 导出产物
+docs/**/*.docx
+# 环境
+*.env
+# 教师下发的课程原件不入公开仓库
+/*.pdf
