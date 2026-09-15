@@ -1,7 +1,7 @@
 # Sprint 1 任务板
 
-> 实验 4 提交物。任务板用 GitHub Issues 加 Project 看板，仓库 https://github.com/CPU-JIA/liuhen。本文件是任务板的文字镜像，截图在 `任务板截图/` 目录，由孟甲在建板当天补入。
-> 建板方式：运行 `tools/create-sprint1-issues.ps1`，为 20 张卡各建一个 Issue（正文是任务勾选清单），横切任务合建一个 Issue，打标签 sprint-1、must / should / cross，再在 GitHub Project 里拖进三列。
+> 实验 4 提交物。任务板用 GitHub Issues 加 Project 看板，仓库 https://github.com/CPU-JIA/liuhen。本文件是任务板的文字镜像，截图在 `任务板截图/` 目录，建板当天由孟甲存入。看板地址 https://github.com/users/CPU-JIA/projects/2 ，三列布局在地址后加 `?layout=board`。
+> 建板方式：运行 `tools/create-sprint1-issues.ps1`，为 20 张卡各建一个 Issue（正文是任务勾选清单），横切任务合建一个 Issue，打标签 sprint-1、must / should / cross；再运行 `tools/add-sprint1-issues-to-board.ps1`，把这些 Issue 挂到 GitHub Project 看板并统一置为待办。两步都能重复跑，也都有 -DryRun。
 
 ## 三列（建板当天状态）
 
@@ -50,7 +50,8 @@
 
 | 文件                        | 何时          | 谁   | 状态 |
 | --------------------------- | ------------- | ---- | ---- |
-| 任务板截图/任务板-建板.png  | 建板当天      | 孟甲 | 待补 |
+| 任务板截图/任务板-建板.png  | 建板当天      | 孟甲 | 已存 |
+| 任务板截图/任务板-建板-清单视图.png | 建板当天，整页清单核对用 | 孟甲 | 已存 |
 | 任务板截图/任务板-第5周.png | 第 5 周站会后 | 孟甲 | 待补 |
 | 任务板截图/任务板-第6周.png | 第 6 周站会后 | 孟甲 | 待补 |
 | 任务板截图/任务板-第7周.png | 第 7 周站会后 | 孟甲 | 待补 |
