@@ -86,6 +86,12 @@ LLM 在本项目中承担的具体岗位，按课程允许范围：整理访谈�
 
 ```powershell
 pwsh tools/export-docx.ps1 -Exp 01
+
+建 Sprint 1 任务板（GitHub Issues 加标签）：pwsh tools/create-sprint1-issues.ps1，加 -DryRun 只打印不执行
+
+## 运行代码
+
+Sprint 1 代码在 `project/`，本机运行、测试、容器化说明见 `project/README.md`。一句话：后端 `mvn spring-boot:run -Dspring-boot.run.profiles=dev`，前端 `pnpm dev`，冒烟 `bash project/scripts/smoke-sprint1.sh`。
 ```
 
 会把 `docs/Exp01-*/04-最终版/*.md` 逐个导出为同名 `.docx`，放在同目录 `docx/` 下。需要本机已安装 Pandoc。
