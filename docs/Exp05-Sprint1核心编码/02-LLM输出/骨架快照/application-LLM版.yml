@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: liuhen
+  datasource:
+    url: jdbc:mysql://localhost:3306/liuhen?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+  flyway:
+    enabled: true
+  jackson:
+    time-zone: Asia/Shanghai
+    date-format: yyyy-MM-dd HH:mm:ss.SSS
+
+server:
+  port: 8080
+
+liuhen:
+  jwt:
+    secret: liuhen-secret
+    ttl-hours: 12
