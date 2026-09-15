@@ -17,3 +17,5 @@ docs/**/*.docx
 *.env
 # 教师下发的课程原件不入公开仓库
 /*.pdf
+# Playwright 截图与快照
+.playwright-mcp/

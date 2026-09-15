@@ -15,10 +15,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# 参数不能叫 $Args：与 PowerShell 自动变量 $args 撞名，展开为空，gh 会只打印帮助并以 0 退出，脚本误以为成功
 function Invoke-Gh {
-    param([string[]]$Args)
-    if ($DryRun) { Write-Host "gh $($Args -join ' ')"; return "" }
-    $out = & gh @Args 2>&1
+    param([string[]]$GhArgs)
+    if ($DryRun) { Write-Host "gh $($GhArgs -join ' ')"; return "" }
+    $out = & gh @GhArgs 2>&1
     if ($LASTEXITCODE -ne 0) { throw "gh 失败：$out" }
     return $out
 }
