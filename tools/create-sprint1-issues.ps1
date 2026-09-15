@@ -19,9 +19,13 @@ $ErrorActionPreference = "Stop"
 function Invoke-Gh {
     param([string[]]$GhArgs)
     if ($DryRun) { Write-Host "gh $($GhArgs -join ' ')"; return "" }
-    $out = & gh @GhArgs 2>&1
-    if ($LASTEXITCODE -ne 0) { throw "gh 失败：$out" }
-    return $out
+    # 本地代理偶发把 api.github.com 连接掐断（EOF），重试三次再放弃
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        $out = & gh @GhArgs 2>&1
+        if ($LASTEXITCODE -eq 0) { return $out }
+        if ($attempt -lt 3) { Start-Sleep -Seconds 2 }
+    }
+    throw "gh 失败：$out"
 }
 
 # 标签
