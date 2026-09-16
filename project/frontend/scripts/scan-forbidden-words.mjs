@@ -9,7 +9,12 @@ function walk(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, entry.name);
     if (entry.isDirectory()) walk(p, out);
-    else if (/\.(vue|ts)$/.test(entry.name) && !ALLOW_FILES.has(entry.name))
+    // 测试文件不是用户会看到的文案，而且禁用词清单自己的测试必须写这些词，所以不扫
+    else if (
+      /\.(vue|ts)$/.test(entry.name) &&
+      !/\.test\.ts$/.test(entry.name) &&
+      !ALLOW_FILES.has(entry.name)
+    )
       out.push(p);
   }
   return out;
