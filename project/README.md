@@ -28,11 +28,18 @@ pnpm scan:words   # 文案禁用词扫描
 ## 测试
 
 ```bash
-cd backend && mvn test                                   # 25 条单元测试
-BASE=http://127.0.0.1:8080 bash scripts/smoke-sprint1.sh # 41 条冒烟断言，需要 dev 配置与空库
+cd backend && mvn test            # 178 条单元测试，覆盖率报告在 target/site/jacoco/index.html
+cd frontend && pnpm test          # 26 条 vitest，jsdom 环境
+BASE=http://127.0.0.1:8080 bash scripts/smoke-sprint1.sh   # 43 条冒烟断言，需要 dev 配置与空库
 ```
 
-冒烟脚本每条断言带实验 2 的验收编号，失败时打印响应体。
+集成测试（Flyway 建表、实体映射、触发器、跨事务的锁定与改密）要一个真 MySQL，设了环境变量才跑，默认跳过：
+
+```bash
+LIUHEN_IT_DB_URL="jdbc:mysql://127.0.0.1:3306/liuhen_it?characterEncoding=UTF-8&serverTimezone=Asia/Shanghai" LIUHEN_IT_DB_USER=root LIUHEN_IT_DB_PASSWORD=你的口令 mvn test      # 多跑 5 条
+```
+
+集成测试的数据带时间戳，同一个库可以反复跑。冒烟脚本每条断言带实验 2 的验收编号，失败时打印响应体。测试用例与验收编号的对照见 `../docs/Exp06-Sprint1单元测试与代码审查/04-最终版/单元测试用例.md`。
 
 ## 容器
 
@@ -48,7 +55,7 @@ LIUHEN_DB_PASSWORD=改一个 LIUHEN_JWT_SECRET=至少32字节的随机串 docker
 | --------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | backend/src/main/java/cn/liuhen         | 按史诗分包：account、policy、work、registration、declaration、timeline、security、evidence、common |
 | backend/src/main/resources/db/migration | Flyway 脚本，来自实验 3 的 schema-sprint1.sql                                                      |
-| backend/src/test                        | 三个手写算法与禁用词的单元测试                                                                     |
+| backend/src/test                        | 按包对应的单元测试；integration/ 下是需要真库的集成测试                                            |
 | frontend/src/views                      | 登录、改密、课程、作业、编辑器、时间线、声明                                                       |
 | scripts                                 | 冒烟脚本                                                                                           |
 
