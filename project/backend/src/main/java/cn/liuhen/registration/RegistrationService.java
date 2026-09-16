@@ -26,6 +26,9 @@ public class RegistrationService {
 
     private static final ZoneId ZONE = ZoneId.of("Asia/Shanghai");
     private static final int TEXT_MAX = 10_000;
+    private static final int PURPOSE_MAX = 200;
+    /** tool_name_custom 与 tool_version 列宽 50；超长在这里拒绝而不是让数据库报错（实验 6 单测发现）。 */
+    private static final int SHORT_MAX = 50;
 
     private final RegistrationRepository registrations;
     private final AiToolRepository tools;
@@ -121,8 +124,11 @@ public class RegistrationService {
         if (in.purpose() == null || in.purpose().isBlank()) {
             throw new BadRequestException("请填写用途");
         }
-        if (in.purpose().length() > 200) {
-            throw new BadRequestException("用途不超过 200 字符");
+        if (in.purpose().codePointCount(0, in.purpose().length()) > PURPOSE_MAX) {
+            throw new BadRequestException("用途不超过 " + PURPOSE_MAX + " 字符");
+        }
+        if (overShort(in.toolNameCustom()) || overShort(in.toolVersion())) {
+            throw new BadRequestException("工具名与版本各不超过 " + SHORT_MAX + " 字符");
         }
         if (in.adoption() == null) {
             throw new BadRequestException("请选择采用方式");
@@ -130,6 +136,10 @@ public class RegistrationService {
         if (tooLong(in.promptText()) || tooLong(in.outputText())) {
             throw new BadRequestException("提示词与输出各不超过 " + TEXT_MAX + " 字符");
         }
+    }
+
+    private static boolean overShort(String s) {
+        return s != null && s.codePointCount(0, s.length()) > SHORT_MAX;
     }
 
     private static boolean tooLong(String s) {

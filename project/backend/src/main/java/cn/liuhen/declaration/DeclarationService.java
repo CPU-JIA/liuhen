@@ -89,7 +89,7 @@ public class DeclarationService {
                 .orElseThrow(() -> new ConflictException("本课程尚未配置 AI 使用规则，请联系老师"));
         List<PolicyScene> scenes = policy.scenesOf(version);
         List<Registration> active = registrations.activeOf(workId);
-        boolean hasAiPaste = !pastes.findByWorkIdAndSource(workId, PasteSource.AI_TOOL).isEmpty();
+        boolean hasAiPaste = pastes.existsByWorkIdAndSource(workId, PasteSource.AI_TOOL);
 
         DeclarationKind kind;
         if (active.isEmpty()) {
@@ -101,6 +101,9 @@ public class DeclarationService {
             }
             kind = DeclarationKind.NOT_USED;
         } else {
+            if (declareNotUsed) {
+                throw new BadRequestException("已有 AI 使用登记，不能同时承诺未使用；请先作废登记或取消勾选");
+            }
             kind = DeclarationKind.AI_USED;
         }
 

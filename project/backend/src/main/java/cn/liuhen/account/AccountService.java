@@ -39,6 +39,9 @@ public class AccountService {
     /** 课程码字母表去掉 0、O、1、I，避免学生输错（走查第 11 条）。 */
     private static final String CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     private static final SecureRandom RANDOM = new SecureRandom();
+    /** 与建表脚本的列宽一致；超长在这里拒绝，不让它变成数据库异常的 500（实验 6 单测发现）。 */
+    private static final int COURSE_NAME_MAX = 100;
+    private static final int ASSIGNMENT_TITLE_MAX = 200;
 
     private final AppUserRepository users;
     private final CourseRepository courses;
@@ -100,6 +103,9 @@ public class AccountService {
         }
         actor.setPasswordHash(encoder.encode(newPassword));
         actor.setMustChangePassword(false);
+        // actor 是控制器在事务外查出来的脱管实体，只改字段不会写库：新密码与"已改密"标记都丢了，
+        // 学生下次登录仍用旧密码、仍被要求改密。冒烟脚本只看了 200 没再登录，实验 6 集成测试才抓到
+        users.save(actor);
     }
 
     // ---------------------------------------------------------------- 课程与作业
@@ -109,6 +115,9 @@ public class AccountService {
         access.require(actor, AccessControl.Action.MANAGE_COURSE);
         if (name == null || name.isBlank()) {
             throw new BadRequestException("课程名不能为空");
+        }
+        if (name.trim().codePointCount(0, name.trim().length()) > COURSE_NAME_MAX) {
+            throw new BadRequestException("课程名不超过 " + COURSE_NAME_MAX + " 字符");
         }
         String code;
         do {
@@ -146,6 +155,9 @@ public class AccountService {
         access.requireCourseOwner(actor, courseId);
         if (title == null || title.isBlank()) {
             throw new BadRequestException("作业名不能为空");
+        }
+        if (title.trim().codePointCount(0, title.trim().length()) > ASSIGNMENT_TITLE_MAX) {
+            throw new BadRequestException("作业名不超过 " + ASSIGNMENT_TITLE_MAX + " 字符");
         }
         if (deadline == null || !deadline.isAfter(now)) {
             throw new BadRequestException("截止时间不能早于现在");

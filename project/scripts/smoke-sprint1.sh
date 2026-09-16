@@ -53,6 +53,9 @@ r=$(req POST /api/auth/login "" '{"loginNo":"24020110","password":"020110"}'); [
 S=$(body "$r" | jget token); MUST=$(body "$r" | jget mustChangePassword)
 [ "$MUST" = "True" ] && ok "首次登录要求改密 AC-ACC-04-2" || bad "首次改密标记" "$MUST"
 r=$(req POST /api/auth/password "$S" '{"oldPassword":"020110","newPassword":"Student@2026"}'); [ "$(code "$r")" = 200 ] && ok "改密" || bad "改密" "$(body "$r")"
+r=$(req POST /api/auth/login "" '{"loginNo":"24020110","password":"Student@2026"}'); [ "$(code "$r")" = 200 ] && [ "$(body "$r" | jget mustChangePassword)" = "False" ] && ok "新密码能登录且不再要求改密 AC-ACC-04-2" || bad "新密码登录" "$(body "$r")"
+S=$(body "$r" | jget token)
+r=$(req POST /api/auth/login "" '{"loginNo":"24020110","password":"020110"}'); [ "$(code "$r")" = 400 ] && ok "旧密码已失效" || bad "旧密码仍可登录" "$(code "$r")"
 r=$(req POST /api/courses/join "$S" "{\"joinCode\":\"$CODE\"}"); [ "$(code "$r")" = 409 ] && ok "名单导入后再输码提示已在课程中 AC-ACC-02-3" || bad "重复加入" "$(code "$r")"
 r=$(req POST /api/courses/join "$S" "{\"joinCode\":\"$(echo "$CODE" | tr 'A-Z' 'a-z')\"}"); [ "$(code "$r")" = 409 ] && ok "课程码不区分大小写 AC-ACC-02-4" || bad "大小写" "$(code "$r")"
 r=$(req POST "/api/assignments/$AID/work" "$S"); [ "$(code "$r")" = 409 ] && ok "未确认规则不能进编辑器 AC-RULE-02-3" || bad "未确认进编辑" "$(code "$r")"

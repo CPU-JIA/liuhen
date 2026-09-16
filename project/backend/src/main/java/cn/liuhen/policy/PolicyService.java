@@ -23,6 +23,7 @@ public class PolicyService {
                              List<Map<String, Object>> scenes, boolean acked, java.time.LocalDateTime updatedAt) { }
 
     private static final int SCENE_NAME_MAX = 30;
+    private static final int GRADING_NOTE_MAX = 200;
 
     private final PolicyVersionRepository versions;
     private final PolicySceneRepository scenes;
@@ -45,21 +46,27 @@ public class PolicyService {
         if (tier == null) {
             throw new BadRequestException("请先选择档位");
         }
-        if (gradingNote != null && gradingNote.length() > 200) {
+        if (gradingNote != null && gradingNote.codePointCount(0, gradingNote.length()) > GRADING_NOTE_MAX) {
             throw new BadRequestException("评分态度不超过 200 字符");
         }
         int next = versions.findFirstByCourseIdAndScopeAssignmentIdOrderByVersionNoDesc(course.getId(), PolicyVersion.COURSE_SCOPE)
                 .map(v -> v.getVersionNo() + 1).orElse(1);
         PolicyVersion saved = versions.save(new PolicyVersion(course.getId(), PolicyVersion.COURSE_SCOPE, next, tier, gradingNote, actor.getId()));
         if (sceneInputs != null) {
+            // 场景名是 policy_scene 的复合主键之一，同一版本里重名会在数据库层撞主键变成 500，所以先在这里查（实验 6 单测发现）
+            java.util.Set<String> seen = new java.util.HashSet<>();
             for (SceneInput s : sceneInputs) {
                 if (s.name() == null || s.name().isBlank()) {
                     throw new BadRequestException("场景名不能为空");
                 }
-                if (s.name().length() > SCENE_NAME_MAX) {
-                    throw new BadRequestException("场景名不超过 30 字符");
+                String name = s.name().trim();
+                if (name.codePointCount(0, name.length()) > SCENE_NAME_MAX) {
+                    throw new BadRequestException("场景名不超过 " + SCENE_NAME_MAX + " 字符");
                 }
-                scenes.save(new PolicyScene(saved.getId(), s.name().trim(), s.allowed()));
+                if (!seen.add(name)) {
+                    throw new BadRequestException("场景名重复：" + name);
+                }
+                scenes.save(new PolicyScene(saved.getId(), name, s.allowed()));
             }
         }
         return saved;

@@ -101,6 +101,10 @@ public class SnapshotService {
         Deque<Snapshot> chain = new ArrayDeque<>();
         Snapshot cursor = target;
         while (!cursor.isKeyframe()) {
+            // 正常的差分链最多 keyframeEvery - 1 步就到关键帧；再长说明 base 指针被改成了环或指错，不能无限走下去（实验 6 审查）
+            if (chain.size() >= cfg.keyframeEvery()) {
+                throw new IllegalStateException("快照 " + target.getSeqNo() + " 的差分链超过关键帧间隔，数据可能被改动");
+            }
             chain.push(cursor);
             Long baseId = cursor.getBaseSnapshotId();
             cursor = snapshots.findById(baseId).orElseThrow(() -> new NotFoundException("差分基快照丢失：" + baseId));
