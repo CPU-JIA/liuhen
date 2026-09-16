@@ -129,7 +129,12 @@ class AccountServiceTest {
         student.setLockedUntil(NOW.plusMinutes(5));
         BadRequestException e = assertThrows(BadRequestException.class, () -> service.login("24020110", "020110", NOW));
         assertTrue(e.getMessage().contains("锁定"));
-        assertTrue(e.getMessage().contains("6 分钟"), "剩余时间向上取整：" + e.getMessage());
+        assertTrue(e.getMessage().contains("5 分钟"), "整 5 分钟就说 5 分钟：" + e.getMessage());
+        student.setLockedUntil(NOW.plusMinutes(4).plusSeconds(30));
+        assertTrue(assertThrows(BadRequestException.class, () -> service.login("24020110", "020110", NOW)).getMessage().contains("5 分钟"),
+                "剩 4 分 30 秒向上取整说 5 分钟");
+        student.setLockedUntil(NOW.plusSeconds(1));
+        assertTrue(assertThrows(BadRequestException.class, () -> service.login("24020110", "020110", NOW)).getMessage().contains("1 分钟"));
     }
 
     @Test

@@ -75,7 +75,8 @@ public class AccountService {
     public LoginResult login(String loginNo, String password, LocalDateTime now) {
         AppUser user = users.findByLoginNo(loginNo).orElseThrow(() -> new BadRequestException("账号或密码不正确"));
         if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(now)) {
-            long minutes = java.time.Duration.between(now, user.getLockedUntil()).toMinutes() + 1;
+            // 剩余时间向上取整：剩 4 分 30 秒说 5 分钟；原来的 toMinutes() + 1 在整分时会多报 1 分钟（实验 6 审查）
+            long minutes = (java.time.Duration.between(now, user.getLockedUntil()).toSeconds() + 59) / 60;
             throw new BadRequestException("账号已锁定，请 " + minutes + " 分钟后再试");
         }
         if (!encoder.matches(password, user.getPasswordHash())) {
