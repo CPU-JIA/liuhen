@@ -187,7 +187,6 @@ class RegistrationServiceTest {
         // 走查第 7 条：拼接无分隔符时 "ab"+"c" 与 "a"+"bc" 同哈希
         Registration ab_c = service.create(student, 1L,
                 input(null, "ab", "c", Stage.POLISH, "改语法", Adoption.MODIFIED, null, null, null), NOW);
-        // 清掉链，让第二条也从 GENESIS 起，两条只差 payload（走查第 7 条）
         store.clear();
         Registration a_bc = service.create(student, 1L,
                 input(null, "a", "bc", Stage.POLISH, "改语法", Adoption.MODIFIED, null, null, null), NOW);

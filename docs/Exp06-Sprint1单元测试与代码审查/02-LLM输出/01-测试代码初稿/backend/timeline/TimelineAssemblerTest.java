@@ -101,14 +101,12 @@ class TimelineAssemblerTest {
     @Test
     void sameSecondKeepsSnapshotPasteRegistrationOrder() {
         when(snapshots.listOf(1L)).thenReturn(List.of(snapshot(1, 10, T)));
-        when(pastes.findByWorkIdOrderByOccurredAtAsc(1L))
-                .thenReturn(List.of(TestSupport.withId(new PasteEvent(1L, 150, 0, 150, PasteSource.OWN_DOC, T), 8L)));
+        when(pastes.findByWorkIdOrderByOccurredAtAsc(1L)).thenReturn(List.of(new PasteEvent(1L, 150, 0, 150, PasteSource.OWN_DOC, T)));
         List<TimelineAssembler.Item> items = assembler.build(student, 1L);
         assertEquals("SNAPSHOT", items.get(0).type());
         assertEquals("PASTE", items.get(1).type());
     }
 
-    /** 权限桩是空的，这条测的是 build 里没有按角色分支；"教师能不能看"由 AccessControlTest 管（走查第 6 条）。 */
     @Test
     void studentAndTeacherGetIdenticalTimelines() {
         assertEquals(assembler.build(student, 1L), assembler.build(teacher, 1L));
