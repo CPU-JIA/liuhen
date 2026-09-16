@@ -166,9 +166,13 @@ async function init() {
 }
 
 async function ack() {
-  await api.post(`/assignments/${props.assignmentId}/policy/ack`);
-  gateOpen.value = false;
-  await enter();
+  try {
+    await api.post(`/assignments/${props.assignmentId}/policy/ack`);
+    gateOpen.value = false;
+    await enter();
+  } catch (e) {
+    error.value = errorMessage(e);
+  }
 }
 
 // ---------------------------------------------------------------- 自动保存
@@ -188,16 +192,24 @@ function scheduleSave() {
 async function save() {
   if (!workId.value || saveState.value === "saving") return;
   saveState.value = "saving";
+  // 记下这次发出去的文本：请求在途时用户可能继续输入，成功回调不能把那段新输入的
+  // "未保存"状态和本地缓存一起抹掉（实验 6 审查发现）
+  const sent = text.value;
   try {
     const { data } = await api.put(`/works/${workId.value}/text`, {
-      text: text.value,
+      text: sent,
     });
     savedAt.value = data.savedAt;
-    saveState.value = "idle";
-    localStorage.removeItem(cacheKey());
     if (retryTimer) {
       clearInterval(retryTimer);
       retryTimer = null;
+    }
+    if (text.value === sent) {
+      saveState.value = "idle";
+      localStorage.removeItem(cacheKey());
+    } else {
+      // 在途期间又有输入，onInput 已排定下一次保存，这里只把状态还原成"有未保存的修改"
+      saveState.value = "dirty";
     }
   } catch (e) {
     const status = (e as { response?: { status?: number } }).response?.status;
@@ -262,8 +274,12 @@ async function choosePasteSource(source: string) {
     pasteDialog.value = null;
     return;
   }
-  await api.put(`/works/pastes/${pasteId}/source`, { source });
-  pasteDialog.value = null;
+  try {
+    await api.put(`/works/pastes/${pasteId}/source`, { source });
+    pasteDialog.value = null;
+  } catch (e) {
+    error.value = errorMessage(e);
+  }
 }
 
 function pasteLater() {
@@ -319,8 +335,12 @@ async function submitRegistration() {
 
 async function voidRegistration(id: number) {
   if (!workId.value) return;
-  await api.delete(`/works/${workId.value}/registrations/${id}`);
-  await loadRegistrations();
+  try {
+    await api.delete(`/works/${workId.value}/registrations/${id}`);
+    await loadRegistrations();
+  } catch (e) {
+    error.value = errorMessage(e);
+  }
 }
 
 function toolLabel(r: Registration) {
@@ -363,8 +383,12 @@ async function resolvePending(id: number, source: string) {
     };
     return;
   }
-  await api.put(`/works/pastes/${id}/source`, { source });
-  pendingPastes.value = pendingPastes.value.filter((p) => p.id !== id);
+  try {
+    await api.put(`/works/pastes/${id}/source`, { source });
+    pendingPastes.value = pendingPastes.value.filter((p) => p.id !== id);
+  } catch (e) {
+    error.value = errorMessage(e);
+  }
 }
 
 onMounted(init);
