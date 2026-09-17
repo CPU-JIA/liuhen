@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { TOKEN_KEY, USER_KEY, currentUser } from "./api";
 
 const router = useRouter();
-const me = computed(() => currentUser());
+const route = useRoute();
+// 登录态放在 localStorage，不是响应式的；只算一次的话登录后顶栏要刷新页面才出现姓名与退出。
+// 跟着路由变化重新读一次（评审彩排发现）
+const me = computed(() => {
+  void route.fullPath;
+  return currentUser();
+});
 const roleLabel: Record<string, string> = {
   STUDENT: "学生",
   TEACHER: "教师",

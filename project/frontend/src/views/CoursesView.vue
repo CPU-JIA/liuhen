@@ -18,8 +18,13 @@ const error = ref("");
 const notice = ref("");
 
 async function load() {
-  const { data } = await api.get<Course[]>("/courses");
-  courses.value = data;
+  // 教务与复核员没有课程列表的权限，进首页会拿到 403；要给一句话，不能让请求错误悄悄吞掉（评审彩排发现）
+  try {
+    const { data } = await api.get<Course[]>("/courses");
+    courses.value = data;
+  } catch (e) {
+    error.value = errorMessage(e);
+  }
 }
 
 async function create() {

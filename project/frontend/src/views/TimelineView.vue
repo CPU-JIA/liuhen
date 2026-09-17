@@ -56,9 +56,19 @@ function describe(i: Item): string {
   return `登记：${d.stage} · ${d.adoption} · ${tool}${d.status === "VOIDED" ? "（已作废）" : ""}`;
 }
 
+// 加载失败要显示出来：没权限的人打开这一页看到的应是"没有权限"，
+// 而不是空态文案"还没有记录"（AC-PERM-01-1；评审彩排发现）
+const loadError = ref("");
+
 async function load() {
-  const { data } = await api.get<Item[]>(`/works/${props.workId}/timeline`);
-  items.value = data;
+  loadError.value = "";
+  try {
+    const { data } = await api.get<Item[]>(`/works/${props.workId}/timeline`);
+    items.value = data;
+  } catch (e) {
+    loadError.value = errorMessage(e);
+    return;
+  }
   const snaps = snapshots();
   if (snaps.length >= 2) {
     from.value = Number(snaps[snaps.length - 2].data.seqNo);
@@ -98,7 +108,10 @@ onMounted(load);
     <p class="muted">
       只有版本、粘贴、登记三类条目，按时间排列。学生本人与教师看到的内容一致。
     </p>
-    <p class="muted" v-if="!items.length">还没有记录，开始写作后自动生成。</p>
+    <p class="error" v-if="loadError">{{ loadError }}</p>
+    <p class="muted" v-else-if="!items.length">
+      还没有记录，开始写作后自动生成。
+    </p>
     <ul class="timeline">
       <li v-for="(i, idx) in items" :key="idx">
         <span class="muted">{{ fmt(i.at) }}</span>

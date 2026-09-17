@@ -29,7 +29,7 @@ pnpm scan:words   # 文案禁用词扫描
 
 ```bash
 cd backend && mvn test            # 178 条单元测试，覆盖率报告在 target/site/jacoco/index.html
-cd frontend && pnpm test          # 26 条 vitest，jsdom 环境
+cd frontend && pnpm test          # 29 条 vitest，jsdom 环境
 BASE=http://127.0.0.1:8080 bash scripts/smoke-sprint1.sh   # 43 条冒烟断言，需要 dev 配置与空库
 ```
 
@@ -56,7 +56,7 @@ LIUHEN_DB_PASSWORD=改一个 LIUHEN_JWT_SECRET=至少32字节的随机串 docker
 | backend/src/main/java/cn/liuhen         | 按史诗分包：account、policy、work、registration、declaration、timeline、security、evidence、common |
 | backend/src/main/resources/db/migration | Flyway 脚本，来自实验 3 的 schema-sprint1.sql                                                      |
 | backend/src/test                        | 按包对应的单元测试；integration/ 下是需要真库的集成测试                                            |
-| frontend/src/views                      | 登录、改密、课程、作业、编辑器、时间线、声明                                                       |
+| frontend/src/views                      | 登录、改密、课程、作业、编辑器、时间线、声明；同目录 *.test.ts 是页面测试                          |
 | scripts                                 | 冒烟脚本                                                                                           |
 
 ## 约定
