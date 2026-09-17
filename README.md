@@ -92,7 +92,7 @@ pwsh tools/export-docx.ps1 -Exp 01
 
 ## 建任务板
 
-分两步：`pwsh tools/create-sprint1-issues.ps1` 建 21 个 Issue 与标签；`pwsh tools/add-sprint1-issues-to-board.ps1` 把它们挂到 Project 看板并置待办。两个脚本都支持 `-DryRun` 只打印不执行，第二步需要 gh 令牌带 project 权限。
+分三步：`pwsh tools/create-sprint1-issues.ps1` 建 21 个 Issue 与标签；`pwsh tools/add-sprint1-issues-to-board.ps1` 把它们挂到 Project 看板并置待办；之后每周 `pwsh tools/update-sprint1-board.ps1 -Week N` 按站会记录勾选任务、写实际小时、关闭做完的卡并移列，跑完截一张图。三个脚本都支持 `-DryRun` 只打印不执行，后两步需要 gh 令牌带 project 权限。
 
 ## 运行代码
 
